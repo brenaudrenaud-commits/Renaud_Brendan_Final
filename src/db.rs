@@ -1,4 +1,4 @@
-use rusqlite::{Connection, Error, params};
+use rusqlite::{Connection, Error, params}; //import crate with needed imports struct, enum, macro (params)
 
 pub struct SqlLiteConnection<'a> {
     pub conn: &'a Connection,
@@ -30,7 +30,7 @@ impl<'a> SqlLiteConnection<'a> {
 mod tests {
     use super::*;
     use rusqlite::Connection;
-
+//setting up test connection
     fn setup_test_db() -> Connection {
         let conn = Connection::open_in_memory().unwrap();
 

@@ -1,5 +1,6 @@
+mod db;
+mod fish;
 use axum::{Router, http::StatusCode, extract::{Path, Query}, response::IntoResponse, Json, routing::{get, post, put}};
-use serde::{Serialize, Deserialize};
 
 
 //tokio -> async multi-threading in rust
@@ -22,20 +23,6 @@ async fn main() {
         .await
         .expect("server failed to start");
 }
-
-#[derive(Serialize)]
-struct User{
-    id: u64,
-    name: String,
-    age: u32,
-}
-
-#[derive(Serialize)]
-struct Post {
-    user_id: u64,
-    post_id: u64,
-}
-
 
 //ensure this thread doesnt have a lifetime 
 //handler asynchronous function that returns anything implementing "IntoResponse" trait
