@@ -1,4 +1,5 @@
 use rusqlite::{Connection, Error, params}; //import crate with needed imports struct, enum, macro (params)
+use crate::fish::Fish;
 
 pub struct SqlLiteConnection<'a> {
     pub conn: &'a Connection,
@@ -23,8 +24,33 @@ impl<'a> SqlLiteConnection<'a> {
 
         Ok(self.conn.last_insert_rowid())
     }
-}
 
+
+//display fish
+pub fn get_all_fish(&self) -> Result<Vec<Fish>, Error> {
+        let mut stmt = self.conn.prepare(
+            "SELECT id, name, species, length, weight FROM fish ORDER BY id ASC"
+        )?;
+
+        let fish_iter = stmt.query_map([], |row| {
+            Ok(Fish {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                species: row.get(2)?,
+                length: row.get(3)?,
+                weight: row.get(4)?,
+            })
+        })?;
+
+        let mut fish_list = Vec::new();
+
+        for fish in fish_iter {
+            fish_list.push(fish?);
+        }
+
+        Ok(fish_list)
+    }
+}
 
 #[cfg(test)]
 mod tests {

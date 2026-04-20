@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h2>Fish Tracker</h2>
+
+<h3>Add a Fish</h3>
+<form method="post" action="/">
+    <label>Name:<br>
+        <input type="text" name="name" required>
+    </label><br><br>
+
+    <label>Species:<br>
+        <input type="text" name="species" required>
+    </label><br><br>
+
+    <label>Length:<br>
+        <input type="number" step="0.1" name="length" required>
+    </label><br><br>
+
+    <label>Weight:<br>
+        <input type="number" step="0.1" name="weight" required>
+    </label><br><br>
+
+    <button type="submit">Add Fish</button>
+</form>
+
+<h3>Fish List</h3>
+
+{% if fish %}
+<ul>
+    {% for f in fish %}
+    <li>
+        <strong>{{ f.name }}</strong><br>
+        ID: {{ f.id }}<br>
+        Species: {{ f.species }}<br>
+        Length: {{ f.length }}<br>
+        Weight: {{ f.weight }}<br>
+    </li>
+    <br>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No fish found.</p>
+{% endif %}
+{% endblock %}

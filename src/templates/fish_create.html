@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Add Fish{% endblock %}
+
+{% block content %}
+<h2>Add a Fish</h2>
+
+<form method="post" action="/fish">
+    <label>Name:<br>
+        <input type="text" name="name" required>
+    </label><br><br>
+
+    <label>Species:<br>
+        <input type="text" name="species" required>
+    </label><br><br>
+
+    <label>Length:<br>
+        <input type="number" step="0.1" name="length" required>
+    </label><br><br>
+
+    <label>Weight:<br>
+        <input type="number" step="0.1" name="weight" required>
+    </label><br><br>
+
+    <button type="submit">Add Fish</button>
+</form>
+{% endblock %}
