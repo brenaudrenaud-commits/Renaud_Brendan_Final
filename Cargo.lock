@@ -130,7 +130,6 @@ dependencies = [
  "minijinja",
  "rusqlite",
  "serde",
- "serde_json",
  "tokio",
  "tower-http",
 ]

@@ -1,11 +1,11 @@
 use rusqlite::{Connection, Error, params}; //import crate with needed imports struct, enum, macro (params)
 use crate::fish::Fish;
 
-pub struct SqlLiteConnection<'a> {
+pub struct SqLiteConnection<'a> {
     pub conn: &'a Connection,
 }
 
-impl<'a> SqlLiteConnection<'a> {
+impl<'a> SqLiteConnection<'a> {
     pub fn new(conn: &'a Connection) -> Self {
         Self { conn }
     }
@@ -22,7 +22,7 @@ impl<'a> SqlLiteConnection<'a> {
             params![name, species, length, weight],
         )?;
 
-        Ok(self.conn.last_insert_rowid())
+        Ok(self.conn.last_insert_rowid())//returning result enum
     }
 
 
@@ -48,18 +48,23 @@ pub fn get_all_fish(&self) -> Result<Vec<Fish>, Error> {
             fish_list.push(fish?);
         }
 
-        Ok(fish_list)
+        Ok(fish_list)//returning result enum
     }
 }
 
 #[cfg(test)]
 mod tests {
+    //import everything from the parent modules
     use super::*;
+    //setup a temporary database connection for the tests
     use rusqlite::Connection;
-//setting up test connection
+
+    //fn to test on our temporary connection
     fn setup_test_db() -> Connection {
+        //open temp connection
         let conn = Connection::open_in_memory().unwrap();
 
+        //create inatial fish table just like i did in main.rs on line 41 but temporary here
         conn.execute(
             "CREATE TABLE fish (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -72,22 +77,32 @@ mod tests {
         )
         .unwrap();
 
+        // return the database connection
         conn
     }
 
     #[test]
     fn test_create_fish_inserts_row() {
+        //new temporary database
         let conn = setup_test_db();
-        let db = SqlLiteConnection::new(&conn);
 
+        //borrow database connection calling the new function
+        let db = SqLiteConnection::new(&conn);
+
+        //test insert one fish row into the fish table and return id
         let fish_id = db.create_fish("Bubbles", "Trout", 18.5, 4.2).unwrap();
 
+        //since this is a temporary connection/test the id should be 1
+        //indicating we had no fish and inserted 1 new fish
         assert_eq!(fish_id, 1);
 
+        //sql query to read the row that was just inserted
         let mut stmt = conn
             .prepare("SELECT id, name, species, length, weight FROM fish WHERE id = ?1")
             .unwrap();
 
+        //run the query prepared on the returned fish id(current fish)
+        //query expects one match per row 
         let fish = stmt
             .query_row([fish_id], |row| {
                 Ok((
@@ -100,10 +115,28 @@ mod tests {
             })
             .unwrap();
 
+        //verify the query has expected values
         assert_eq!(fish.0, 1);
         assert_eq!(fish.1, "Bubbles");
         assert_eq!(fish.2, "Trout");
         assert_eq!(fish.3, 18.5);
         assert_eq!(fish.4, 4.2);
     }
+
+#[test]
+fn test_get_all_fish_returns_inserted_fish() {
+    let conn = setup_test_db();
+    let db = SqLiteConnection::new(&conn);
+
+    db.create_fish("Bubbles", "Trout", 18.5, 4.2).unwrap();
+    db.create_fish("Splash", "Bass", 12.0, 2.1).unwrap();
+
+    let fish_list = db.get_all_fish().unwrap();
+
+    assert_eq!(fish_list.len(), 2);
+    assert_eq!(fish_list[0].name, "Bubbles");
+    assert_eq!(fish_list[0].species, "Trout");
+    assert_eq!(fish_list[1].name, "Splash");
+    assert_eq!(fish_list[1].species, "Bass");
+}
 }
